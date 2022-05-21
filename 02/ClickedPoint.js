@@ -1,4 +1,4 @@
-// HelloPoint2.js
+// ClickedPoint.js
 var VSHADER_SOURCE = 
     'attribute vec4 a_Position;\n' +
     'void main() {\n' +
@@ -36,15 +36,36 @@ function main() {
         return;
     }
 
-    // 将顶点数据传给attribute变量
-    gl.vertexAttrib3f(a_Position, 0.0, 0.0, 0.0);
+    // 注册鼠标点击事件响应函数
+    canvas.onmousedown = function (ev) {
+        click(ev, gl, canvas, a_Position);
+    }
 
     // 设置canvas颜色为黑色
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
     //清空canvas
     gl.clear(gl.COLOR_BUFFER_BIT);
+}
 
-    //画一个点
-    gl.drawArrays(gl.POINTS, 0, 1);
+// 鼠标点击位置数组
+var g_points = [];
+function click(ev, gl, canvas, a_Position) {
+    var x = ev.clientX;
+    var y = ev.clientY;
+    var rect = ev.target.getBoundingClientRect();
+    x = ((x - rect.left) - (canvas.width / 2)) / (canvas.height / 2);
+    y = ((canvas.width / 2) - (y - rect.top)) / (canvas.width / 2);
+    // 将坐标存储到g_points中
+    g_points.push(x);
+    g_points.push(y);
+
+    //清空canvas
+    gl.clear(gl.COLOR_BUFFER_BIT);    
+
+    var len = g_points.length;
+    for (let index = 0; index < len; index += 2) {
+        gl.vertexAttrib3f(a_Position, g_points[index], g_points[index + 1], 0.0);
+        gl.drawArrays(gl.POINTS, 0, 1);
+    }
 }
